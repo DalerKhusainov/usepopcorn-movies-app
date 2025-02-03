@@ -1,16 +1,16 @@
 import { useContext } from "react";
-import MovieCard from "./MovieCard";
 import { MoviesContext } from "../context/moviesContext";
+import WatchedMovieCard from "./WatchedMovieCard";
 
-export default function MoviesList() {
+export default function WatchedMoviesList() {
   const moviesContext = useContext(MoviesContext);
   if (!moviesContext) return;
-  const { movies } = moviesContext;
+  const { watched } = moviesContext;
 
   return (
     <ul className="list">
-      {movies?.map((movie) => (
-        <MovieCard movie={movie} key={movie.imdbID} />
+      {watched.map((movie) => (
+        <WatchedMovieCard movie={movie} key={movie.imdbID} />
       ))}
     </ul>
   );

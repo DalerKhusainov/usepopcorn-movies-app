@@ -1,12 +1,12 @@
 import "./App.css";
-import Main from "./components/Main";
+import MainContent from "./components/MainContent";
 import Navbar from "./components/Navbar";
 
 export default function App() {
   return (
     <>
       <Navbar />
-      <Main />
+      <MainContent />
     </>
   );
 }
