@@ -339,6 +339,16 @@ body {
   justify-content: center;
 }
 
+.star-rating-container {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+}
+
+.stars {
+  display: flex;
+}
+
 /*
 SPACING SYSTEM (px)
 2 / 4 / 8 / 12 / 16 / 24 / 32 / 40 / 48 / 64 / 80 / 96 / 128
