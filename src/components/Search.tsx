@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useContext } from "react";
+import { MoviesContext } from "../context/moviesContext";
 
 export default function Search() {
-  const [query, setQuery] = useState("");
+  const moviesContext = useContext(MoviesContext);
+  if (!moviesContext) return;
+  const { query, setQuery } = moviesContext;
 
   return (
     <input

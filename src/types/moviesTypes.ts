@@ -17,3 +17,17 @@ export type TempWatchedMovieType = {
   imdbRating: number;
   userRating: number;
 };
+
+export interface Root {
+  Search: Search[];
+  totalResults: string;
+  Response: string;
+}
+
+export interface Search {
+  Title: string;
+  Year: string;
+  imdbID: string;
+  Type: string;
+  Poster: string;
+}

@@ -4,33 +4,11 @@ import {
   ReactNode,
   SetStateAction,
   useState,
+  useEffect,
 } from "react";
-import { TempWatchedMoviesType, TempMoviesType } from "../types/moviesTypes";
+import { TempWatchedMoviesType, Search } from "../types/moviesTypes";
 import { average } from "../utils/helpers";
-
-const tempMovieData: TempMoviesType = [
-  {
-    imdbID: "tt1375666",
-    Title: "Inception",
-    Year: "2010",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-  },
-  {
-    imdbID: "tt0133093",
-    Title: "The Matrix",
-    Year: "1999",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_SX300.jpg",
-  },
-  {
-    imdbID: "tt6751668",
-    Title: "Parasite",
-    Year: "2019",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BYWZjMjk3ZTItODQ2ZC00NTY5LWE0ZDYtZTI3MjcwN2Q5NTVkXkEyXkFqcGdeQXVyODk4OTc3MTY@._V1_SX300.jpg",
-  },
-];
+import { useDebounce } from "../hooks/debounced";
 
 const tempWatchedData: TempWatchedMoviesType = [
   {
@@ -55,14 +33,20 @@ const tempWatchedData: TempWatchedMoviesType = [
   },
 ];
 
+// const KEY = 'c2e2a507'
+
 interface MoviesContextType {
-  movies: TempMoviesType;
+  movies: Search[];
   watched: TempWatchedMoviesType;
   avgImdbRating: number;
   avgUserRating: number;
   avgRuntime: number;
   watchedLength: number;
   foundMovies: number;
+  isLoading: boolean;
+  error: string;
+  query: string;
+  setQuery: Dispatch<SetStateAction<string>>;
 }
 
 export const MoviesContext = createContext<MoviesContextType | undefined>(
@@ -73,10 +57,48 @@ interface MoviesProviderType {
   children: ReactNode;
 }
 
+const KEY = "c2e2a507";
+
 export default function MoviesProvider({ children }: MoviesProviderType) {
-  const [movies, setMovies] = useState<TempMoviesType>(tempMovieData);
+  const [movies, setMovies] = useState<Search[]>([]);
   const [watched, setWatched] =
     useState<TempWatchedMoviesType>(tempWatchedData);
+  const [query, setQuery] = useState("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState("");
+
+  const debouncedQuery = useDebounce(query);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        setIsLoading(true);
+        setError("");
+        const response = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+        );
+
+        if (!response.ok)
+          throw new Error("Something went wrong with fetching movies");
+
+        const data = await response.json();
+        if (data.Response === "False") throw new Error("Movie not found");
+        setMovies(data.Search);
+      } catch (err) {
+        console.error(err instanceof Error && err.message);
+        setError(err instanceof Error ? err.message : "An error occured");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (debouncedQuery.length >= 2) {
+      fetchData();
+    } else {
+      setMovies([]);
+      setError("");
+    }
+  }, [debouncedQuery]);
 
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
@@ -94,6 +116,10 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         avgRuntime,
         watchedLength,
         foundMovies,
+        isLoading,
+        error,
+        query,
+        setQuery,
       }}
     >
       {children}
