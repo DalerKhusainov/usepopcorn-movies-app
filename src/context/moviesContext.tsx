@@ -33,8 +33,6 @@ const tempWatchedData: TempWatchedMoviesType = [
   },
 ];
 
-// const KEY = 'c2e2a507'
-
 interface MoviesContextType {
   movies: Search[];
   watched: TempWatchedMoviesType;
@@ -47,6 +45,9 @@ interface MoviesContextType {
   error: string;
   query: string;
   setQuery: Dispatch<SetStateAction<string>>;
+  selectedId: string | null;
+  handleSelectMovie: (id: string) => void;
+  handleCloseMovie: () => void;
 }
 
 export const MoviesContext = createContext<MoviesContextType | undefined>(
@@ -57,7 +58,8 @@ interface MoviesProviderType {
   children: ReactNode;
 }
 
-const KEY = "c2e2a507";
+// const KEY = import.meta.env.VITE_API_KEY;
+// console.log(KEY);
 
 export default function MoviesProvider({ children }: MoviesProviderType) {
   const [movies, setMovies] = useState<Search[]>([]);
@@ -66,6 +68,7 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const debouncedQuery = useDebounce(query);
 
@@ -75,7 +78,9 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         setIsLoading(true);
         setError("");
         const response = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${
+            import.meta.env.VITE_API_KEY
+          }&s=${query}`
         );
 
         if (!response.ok)
@@ -84,6 +89,7 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         const data = await response.json();
         if (data.Response === "False") throw new Error("Movie not found");
         setMovies(data.Search);
+        console.log(data.Search);
       } catch (err) {
         console.error(err instanceof Error && err.message);
         setError(err instanceof Error ? err.message : "An error occured");
@@ -99,6 +105,14 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
       setError("");
     }
   }, [debouncedQuery]);
+
+  function handleSelectMovie(id: string) {
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
+  }
+
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
 
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
   const avgUserRating = average(watched.map((movie) => movie.userRating));
@@ -120,6 +134,9 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         error,
         query,
         setQuery,
+        selectedId,
+        handleSelectMovie,
+        handleCloseMovie,
       }}
     >
       {children}

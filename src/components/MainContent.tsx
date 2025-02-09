@@ -5,12 +5,13 @@ import WatchedMoviesList from "./WatchedMoviesList";
 import WatchedSummery from "./WatchedSummery";
 import Loader from "./Loader";
 import Error from "./Error";
+import MovieDetails from "./MovieDetails";
 import { MoviesContext } from "../context/moviesContext";
 
 export default function MainContent() {
   const moviesContext = useContext(MoviesContext);
   if (!moviesContext) return;
-  const { isLoading, error } = moviesContext;
+  const { isLoading, error, selectedId } = moviesContext;
 
   return (
     <main className="main">
@@ -20,8 +21,14 @@ export default function MainContent() {
         {error && <Error message={error} />}
       </Box>
       <Box>
-        <WatchedSummery />
-        <WatchedMoviesList />
+        {selectedId ? (
+          <MovieDetails selectedId={selectedId} />
+        ) : (
+          <>
+            <WatchedSummery />
+            <WatchedMoviesList />
+          </>
+        )}
       </Box>
     </main>
   );

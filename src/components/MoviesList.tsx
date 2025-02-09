@@ -8,7 +8,7 @@ export default function MoviesList() {
   const { movies } = moviesContext;
 
   return (
-    <ul className="list">
+    <ul className="list list-movies">
       {movies?.map((movie) => (
         <MovieCard movie={movie} key={movie.imdbID} />
       ))}
