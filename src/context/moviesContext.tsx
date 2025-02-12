@@ -6,7 +6,7 @@ import {
   useState,
   useEffect,
 } from "react";
-import { TempWatchedMoviesType, Search } from "../types/moviesTypes";
+import { TempWatchedMoviesType, Search, MovieType } from "../types/moviesTypes";
 import { average } from "../utils/helpers";
 import { useDebounce } from "../hooks/debounced";
 
@@ -48,6 +48,7 @@ interface MoviesContextType {
   selectedId: string | null;
   handleSelectMovie: (id: string) => void;
   handleCloseMovie: () => void;
+  selectedMovie: MovieType | null;
 }
 
 export const MoviesContext = createContext<MoviesContextType | undefined>(
@@ -58,9 +59,6 @@ interface MoviesProviderType {
   children: ReactNode;
 }
 
-// const KEY = import.meta.env.VITE_API_KEY;
-// console.log(KEY);
-
 export default function MoviesProvider({ children }: MoviesProviderType) {
   const [movies, setMovies] = useState<Search[]>([]);
   const [watched, setWatched] =
@@ -69,6 +67,9 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedMovie, setSelectedMovie] = useState<MovieType | null>(null);
+
+  console.log(selectedMovie);
 
   const debouncedQuery = useDebounce(query);
 
@@ -110,6 +111,19 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
 
+  useEffect(() => {
+    async function fetchMovie() {
+      const response = await fetch(
+        `http://www.omdbapi.com/?apikey=${
+          import.meta.env.VITE_API_KEY
+        }&i=${selectedId}`
+      );
+      const data = await response.json();
+      setSelectedMovie(data);
+    }
+    fetchMovie();
+  }, [selectedId]);
+
   function handleCloseMovie() {
     setSelectedId(null);
   }
@@ -137,6 +151,7 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         selectedId,
         handleSelectMovie,
         handleCloseMovie,
+        selectedMovie,
       }}
     >
       {children}

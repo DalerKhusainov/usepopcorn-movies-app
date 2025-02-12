@@ -22,7 +22,7 @@ export default function MainContent() {
       </Box>
       <Box>
         {selectedId ? (
-          <MovieDetails selectedId={selectedId} />
+          <MovieDetails />
         ) : (
           <>
             <WatchedSummery />
