@@ -11,13 +11,13 @@ import { MoviesContext } from "../context/moviesContext";
 export default function MainContent() {
   const moviesContext = useContext(MoviesContext);
   if (!moviesContext) return;
-  const { isLoading, error, selectedId } = moviesContext;
+  const { selectedId, isLoading, error, movies } = moviesContext;
 
   return (
     <main className="main">
       <Box>
         {isLoading && <Loader />}
-        {!isLoading && !error && <MoviesList />}
+        {!isLoading && !error && <MoviesList movies={movies} />}
         {error && <Error message={error} />}
       </Box>
       <Box>

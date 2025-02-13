@@ -28,6 +28,28 @@ export default function MovieDetails({ selectedId }: { selectedId: string }) {
     fetchMovie();
   }, [selectedId]);
 
+  useEffect(() => {
+    document.title = `Movie | ${selectedMovie?.Title}`;
+
+    return () => {
+      document.title = "usePopcorn";
+    };
+  }, [selectedMovie]);
+
+  useEffect(() => {
+    function callback(e: KeyboardEvent) {
+      if (e.code === "Escape") {
+        handleCloseMovie();
+      }
+    }
+
+    document.addEventListener("keydown", callback);
+
+    return () => {
+      document.removeEventListener("keydown", callback);
+    };
+  }, [handleCloseMovie]);
+
   function handleAdd() {
     const newWatchedMovie = {
       imdbID: selectedId,
@@ -92,7 +114,8 @@ export default function MovieDetails({ selectedId }: { selectedId: string }) {
                 </>
               ) : (
                 <p>
-                  You rated with movie {watchedUserRating} <span>⭐</span>
+                  You've rated this movie with {watchedUserRating}{" "}
+                  <span>⭐</span>
                 </p>
               )}
             </div>

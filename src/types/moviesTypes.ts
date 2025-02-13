@@ -1,12 +1,4 @@
-export type TempMoviesType = TempMovieType[];
 export type WatchedMoviesType = WatchedMovieType[];
-
-export type TempMovieType = {
-  imdbID: string;
-  Title: string;
-  Year: string;
-  Poster: string;
-};
 
 export type WatchedMovieType = {
   imdbID: string;
@@ -18,13 +10,13 @@ export type WatchedMovieType = {
   userRating: number;
 };
 
-export interface Root {
-  Search: Search[];
+export interface SearchRoot {
+  Search: MovieSearchType[];
   totalResults: string;
   Response: string;
 }
 
-export interface Search {
+export interface MovieSearchType {
   Title: string;
   Year: string;
   imdbID: string;

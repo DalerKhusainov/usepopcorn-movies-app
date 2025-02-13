@@ -8,15 +8,14 @@ import {
 } from "react";
 import {
   WatchedMoviesType,
-  Search,
+  MovieSearchType,
   WatchedMovieType,
 } from "../types/moviesTypes";
 import { average } from "../utils/helpers";
-
 import { useDebounce } from "../hooks/debounced";
 
 interface MoviesContextType {
-  movies: Search[];
+  movies: MovieSearchType[];
   watched: WatchedMoviesType;
   avgImdbRating: number;
   avgUserRating: number;
@@ -43,24 +42,26 @@ interface MoviesProviderType {
 }
 
 export default function MoviesProvider({ children }: MoviesProviderType) {
-  const [movies, setMovies] = useState<Search[]>([]);
+  const [movies, setMovies] = useState<MovieSearchType[]>([]);
   const [watched, setWatched] = useState<WatchedMoviesType>([]);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const debouncedQuery = useDebounce(query);
+  const debouncedQuery = useDebounce(query, 500);
 
   useEffect(() => {
-    async function fetchData() {
+    const controller = new AbortController();
+    async function fetchMovies() {
       try {
         setIsLoading(true);
         setError("");
         const response = await fetch(
           `http://www.omdbapi.com/?apikey=${
             import.meta.env.VITE_API_KEY
-          }&s=${query}`
+          }&s=${debouncedQuery}`,
+          { signal: controller.signal }
         );
 
         if (!response.ok)
@@ -69,20 +70,28 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         const data = await response.json();
         if (data.Response === "False") throw new Error("Movie not found");
         setMovies(data.Search);
-      } catch (err) {
-        console.error(err instanceof Error && err.message);
-        setError(err instanceof Error ? err.message : "An error occured");
+      } catch (err: any) {
+        if (err.name !== "AbortError") {
+          console.log(err.message);
+          setError(err.message);
+        }
       } finally {
         setIsLoading(false);
       }
     }
 
-    if (debouncedQuery.length >= 2) {
-      fetchData();
-    } else {
+    if (debouncedQuery.length < 3) {
       setMovies([]);
       setError("");
+      return;
     }
+
+    fetchMovies();
+    handleCloseMovie();
+
+    return () => {
+      controller.abort();
+    };
   }, [debouncedQuery]);
 
   function handleSelectMovie(id: string) {

@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { TempMovieType } from "../types/moviesTypes";
+import { MovieSearchType } from "../types/moviesTypes";
 import { MoviesContext } from "../context/moviesContext";
 interface MovieCardProps {
-  movie: TempMovieType;
+  movie: MovieSearchType;
 }
 
 export default function MovieCard({ movie }: MovieCardProps) {

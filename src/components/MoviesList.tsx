@@ -1,12 +1,7 @@
-import { useContext } from "react";
 import MovieCard from "./MovieCard";
-import { MoviesContext } from "../context/moviesContext";
+import { MovieSearchType } from "../types/moviesTypes";
 
-export default function MoviesList() {
-  const moviesContext = useContext(MoviesContext);
-  if (!moviesContext) return;
-  const { movies } = moviesContext;
-
+export default function MoviesList({ movies }: { movies: MovieSearchType[] }) {
   return (
     <ul className="list list-movies">
       {movies?.map((movie) => (
