@@ -1,5 +1,5 @@
 export type TempMoviesType = TempMovieType[];
-export type TempWatchedMoviesType = TempWatchedMovieType[];
+export type WatchedMoviesType = WatchedMovieType[];
 
 export type TempMovieType = {
   imdbID: string;
@@ -8,13 +8,13 @@ export type TempMovieType = {
   Poster: string;
 };
 
-export type TempWatchedMovieType = {
+export type WatchedMovieType = {
   imdbID: string;
-  Title: string;
-  Year: string;
-  Poster: string;
+  imdbRating: number | undefined;
+  title: string | undefined;
+  year: string | undefined;
+  poster: string | undefined;
   runtime: number;
-  imdbRating: number;
   userRating: number;
 };
 

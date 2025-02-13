@@ -6,40 +6,22 @@ import {
   useState,
   useEffect,
 } from "react";
-import { TempWatchedMoviesType, Search, MovieType } from "../types/moviesTypes";
+import {
+  WatchedMoviesType,
+  Search,
+  WatchedMovieType,
+} from "../types/moviesTypes";
 import { average } from "../utils/helpers";
-import { useDebounce } from "../hooks/debounced";
 
-const tempWatchedData: TempWatchedMoviesType = [
-  {
-    imdbID: "tt1375666",
-    Title: "Inception",
-    Year: "2010",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BMjAxMzY3NjcxNF5BMl5BanBnXkFtZTcwNTI5OTM0Mw@@._V1_SX300.jpg",
-    runtime: 148,
-    imdbRating: 8.8,
-    userRating: 10,
-  },
-  {
-    imdbID: "tt0088763",
-    Title: "Back to the Future",
-    Year: "1985",
-    Poster:
-      "https://m.media-amazon.com/images/M/MV5BZmU0M2Y1OGUtZjIxNi00ZjBkLTg1MjgtOWIyNThiZWIwYjRiXkEyXkFqcGdeQXVyMTQxNzMzNDI@._V1_SX300.jpg",
-    runtime: 116,
-    imdbRating: 8.5,
-    userRating: 9,
-  },
-];
+import { useDebounce } from "../hooks/debounced";
 
 interface MoviesContextType {
   movies: Search[];
-  watched: TempWatchedMoviesType;
+  watched: WatchedMoviesType;
   avgImdbRating: number;
   avgUserRating: number;
   avgRuntime: number;
-  watchedLength: number;
+  watchedLength: number | undefined;
   foundMovies: number;
   isLoading: boolean;
   error: string;
@@ -48,7 +30,8 @@ interface MoviesContextType {
   selectedId: string | null;
   handleSelectMovie: (id: string) => void;
   handleCloseMovie: () => void;
-  selectedMovie: MovieType | null;
+  handleAddWatched: (movie: WatchedMovieType) => void;
+  handleDeleteWatched: (id: string) => void;
 }
 
 export const MoviesContext = createContext<MoviesContextType | undefined>(
@@ -61,15 +44,11 @@ interface MoviesProviderType {
 
 export default function MoviesProvider({ children }: MoviesProviderType) {
   const [movies, setMovies] = useState<Search[]>([]);
-  const [watched, setWatched] =
-    useState<TempWatchedMoviesType>(tempWatchedData);
+  const [watched, setWatched] = useState<WatchedMoviesType>([]);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedMovie, setSelectedMovie] = useState<MovieType | null>(null);
-
-  console.log(selectedMovie);
 
   const debouncedQuery = useDebounce(query);
 
@@ -90,7 +69,6 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         const data = await response.json();
         if (data.Response === "False") throw new Error("Movie not found");
         setMovies(data.Search);
-        console.log(data.Search);
       } catch (err) {
         console.error(err instanceof Error && err.message);
         setError(err instanceof Error ? err.message : "An error occured");
@@ -111,27 +89,23 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
 
-  useEffect(() => {
-    async function fetchMovie() {
-      const response = await fetch(
-        `http://www.omdbapi.com/?apikey=${
-          import.meta.env.VITE_API_KEY
-        }&i=${selectedId}`
-      );
-      const data = await response.json();
-      setSelectedMovie(data);
-    }
-    fetchMovie();
-  }, [selectedId]);
-
   function handleCloseMovie() {
     setSelectedId(null);
   }
 
-  const avgImdbRating = average(watched.map((movie) => movie.imdbRating));
-  const avgUserRating = average(watched.map((movie) => movie.userRating));
-  const avgRuntime = average(watched.map((movie) => movie.runtime));
-  const watchedLength = watched.length;
+  function handleAddWatched(movie: WatchedMovieType) {
+    setWatched((watched) => [...watched!, movie]);
+    handleCloseMovie();
+  }
+
+  function handleDeleteWatched(id: string) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
+
+  const avgImdbRating = average(watched?.map((movie) => movie.imdbRating));
+  const avgUserRating = average(watched?.map((movie) => movie.userRating));
+  const avgRuntime = average(watched?.map((movie) => movie.runtime));
+  const watchedLength = watched?.length;
   const foundMovies = movies.length;
 
   return (
@@ -151,7 +125,8 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         selectedId,
         handleSelectMovie,
         handleCloseMovie,
-        selectedMovie,
+        handleAddWatched,
+        handleDeleteWatched,
       }}
     >
       {children}

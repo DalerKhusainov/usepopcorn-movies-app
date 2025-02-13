@@ -1,14 +1,19 @@
-import { TempWatchedMovieType } from "../types/moviesTypes";
-
+import { useContext } from "react";
+import { WatchedMovieType } from "../types/moviesTypes";
+import { MoviesContext } from "../context/moviesContext";
 interface WatchedMovieCardProps {
-  movie: TempWatchedMovieType;
+  movie: WatchedMovieType;
 }
 
 export default function WatchedMovieCard({ movie }: WatchedMovieCardProps) {
+  const moviesContext = useContext(MoviesContext);
+  if (!moviesContext) return;
+  const { handleDeleteWatched } = moviesContext;
+
   return (
     <li>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
-      <h3>{movie.Title}</h3>
+      <img src={movie.poster} alt={`${movie.title} poster`} />
+      <h3>{movie.title}</h3>
       <div>
         <p>
           <span>⭐️</span>
@@ -22,6 +27,12 @@ export default function WatchedMovieCard({ movie }: WatchedMovieCardProps) {
           <span>⏳</span>
           <span>{movie.runtime} min</span>
         </p>
+        <button
+          className="btn-delete"
+          onClick={() => handleDeleteWatched(movie.imdbID)}
+        >
+          X
+        </button>
       </div>
     </li>
   );
