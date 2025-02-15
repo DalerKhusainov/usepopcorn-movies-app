@@ -4,6 +4,8 @@ import StarRating from "./StarRating";
 import { MovieType } from "../types/moviesTypes";
 import Loader from "./Loader";
 
+const API_KEY = "c2e2a507";
+
 export default function MovieDetails({ selectedId }: { selectedId: string }) {
   const [selectedMovie, setSelectedMovie] = useState<MovieType | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -17,9 +19,7 @@ export default function MovieDetails({ selectedId }: { selectedId: string }) {
     async function fetchMovie() {
       setIsLoading(true);
       const response = await fetch(
-        `http://www.omdbapi.com/?apikey=${
-          import.meta.env.VITE_API_KEY
-        }&i=${selectedId}`
+        `http://www.omdbapi.com/?apikey=${API_KEY}&i=${selectedId}`
       );
       const data = await response.json();
       setSelectedMovie(data);

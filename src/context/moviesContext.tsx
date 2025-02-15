@@ -14,6 +14,8 @@ import {
 import { average } from "../utils/helpers";
 import { useDebounce } from "../hooks/debounced";
 
+const API_KEY = "c2e2a507";
+
 interface MoviesContextType {
   movies: MovieSearchType[];
   watched: WatchedMoviesType;
@@ -57,9 +59,7 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
         setIsLoading(true);
         setError("");
         const response = await fetch(
-          `http://www.omdbapi.com/?apikey=${
-            import.meta.env.VITE_API_KEY
-          }&s=${debouncedQuery}`,
+          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${debouncedQuery}`,
           { signal: controller.signal }
         );
 
