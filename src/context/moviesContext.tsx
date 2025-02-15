@@ -50,7 +50,6 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const debouncedQuery = useDebounce(query, 500);
-
   useEffect(() => {
     const controller = new AbortController();
     async function fetchMovies() {
