@@ -4,21 +4,14 @@ import {
   ReactNode,
   SetStateAction,
   useState,
-  useEffect,
 } from "react";
-import {
-  WatchedMoviesType,
-  MovieSearchType,
-  WatchedMovieType,
-} from "../types/moviesTypes";
+import { MovieSearchType, WatchedMovieType } from "../types/moviesTypes";
 import { average } from "../utils/helpers";
-import { useDebounce } from "../hooks/debounced";
-
-const API_KEY = "c2e2a507";
-
+import { useMovies } from "../hooks/useMovies";
+import { useLocalStorageState } from "../hooks/useLocalStorageState";
 interface MoviesContextType {
   movies: MovieSearchType[];
-  watched: WatchedMoviesType;
+  watched: WatchedMovieType[] | null;
   avgImdbRating: number;
   avgUserRating: number;
   avgRuntime: number;
@@ -44,54 +37,14 @@ interface MoviesProviderType {
 }
 
 export default function MoviesProvider({ children }: MoviesProviderType) {
-  const [movies, setMovies] = useState<MovieSearchType[]>([]);
-  const [watched, setWatched] = useState<WatchedMoviesType>([]);
   const [query, setQuery] = useState("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const debouncedQuery = useDebounce(query, 500);
-  useEffect(() => {
-    const controller = new AbortController();
-    async function fetchMovies() {
-      try {
-        setIsLoading(true);
-        setError("");
-        const response = await fetch(
-          `http://www.omdbapi.com/?apikey=${API_KEY}&s=${debouncedQuery}`,
-          { signal: controller.signal }
-        );
-
-        if (!response.ok)
-          throw new Error("Something went wrong with fetching movies");
-
-        const data = await response.json();
-        if (data.Response === "False") throw new Error("Movie not found");
-        setMovies(data.Search);
-      } catch (err: any) {
-        if (err.name !== "AbortError") {
-          console.log(err.message);
-          setError(err.message);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    if (debouncedQuery.length < 3) {
-      setMovies([]);
-      setError("");
-      return;
-    }
-
-    fetchMovies();
-    handleCloseMovie();
-
-    return () => {
-      controller.abort();
-    };
-  }, [debouncedQuery]);
+  const { movies, isLoading, error } = useMovies(query, handleCloseMovie);
+  const [watched, setWatched] = useLocalStorageState<WatchedMovieType[] | null>(
+    [],
+    "watched"
+  );
 
   function handleSelectMovie(id: string) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -103,11 +56,12 @@ export default function MoviesProvider({ children }: MoviesProviderType) {
 
   function handleAddWatched(movie: WatchedMovieType) {
     setWatched((watched) => [...watched!, movie]);
+    // setWatchedTest((watched) => [...watched!, movie]);
     handleCloseMovie();
   }
 
   function handleDeleteWatched(id: string) {
-    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+    setWatched((watched) => watched!.filter((movie) => movie.imdbID !== id));
   }
 
   const avgImdbRating = average(watched?.map((movie) => movie.imdbRating));

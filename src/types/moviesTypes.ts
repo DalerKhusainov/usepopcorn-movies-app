@@ -1,4 +1,4 @@
-export type WatchedMoviesType = WatchedMovieType[];
+// export type WatchedMoviesType = WatchedMovieType[];
 
 export type WatchedMovieType = {
   imdbID: string;
@@ -8,6 +8,7 @@ export type WatchedMovieType = {
   poster: string | undefined;
   runtime: number;
   userRating: number;
+  // countRatingDecisions: number;
 };
 
 export interface SearchRoot {
