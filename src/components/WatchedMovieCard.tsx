@@ -1,14 +1,11 @@
-import { useContext } from "react";
 import { WatchedMovieType } from "../types/moviesTypes";
-import { MoviesContext } from "../context/moviesContext";
+import { useMoviesContext } from "../hooks/useMovieContext";
 interface WatchedMovieCardProps {
   movie: WatchedMovieType;
 }
 
 export default function WatchedMovieCard({ movie }: WatchedMovieCardProps) {
-  const moviesContext = useContext(MoviesContext);
-  if (!moviesContext) return;
-  const { handleDeleteWatched } = moviesContext;
+  const { handleDeleteWatched } = useMoviesContext();
 
   return (
     <li>

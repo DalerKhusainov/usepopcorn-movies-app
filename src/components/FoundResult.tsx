@@ -1,10 +1,7 @@
-import { useContext } from "react";
-import { MoviesContext } from "../context/moviesContext";
+import { useMoviesContext } from "../hooks/useMovieContext";
 
 export default function FoundResult() {
-  const moviesContext = useContext(MoviesContext);
-  if (!moviesContext) return;
-  const { foundMovies } = moviesContext;
+  const { foundMovies } = useMoviesContext();
 
   return (
     <p className="num-results">

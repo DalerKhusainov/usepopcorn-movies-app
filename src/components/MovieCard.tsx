@@ -1,14 +1,11 @@
-import { useContext } from "react";
 import { MovieSearchType } from "../types/moviesTypes";
-import { MoviesContext } from "../context/moviesContext";
+import { useMoviesContext } from "../hooks/useMovieContext";
 interface MovieCardProps {
   movie: MovieSearchType;
 }
 
 export default function MovieCard({ movie }: MovieCardProps) {
-  const moviesContext = useContext(MoviesContext);
-  if (!moviesContext) return;
-  const { handleSelectMovie } = moviesContext;
+  const { handleSelectMovie } = useMoviesContext();
 
   return (
     <li onClick={() => handleSelectMovie(movie.imdbID)}>

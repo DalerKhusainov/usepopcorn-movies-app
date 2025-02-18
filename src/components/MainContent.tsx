@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import Box from "./Box";
 import MoviesList from "./MoviesList";
 import WatchedMoviesList from "./WatchedMoviesList";
@@ -6,12 +5,10 @@ import WatchedSummery from "./WatchedSummery";
 import Loader from "./Loader";
 import Error from "./Error";
 import MovieDetails from "./MovieDetails";
-import { MoviesContext } from "../context/moviesContext";
+import { useMoviesContext } from "../hooks/useMovieContext";
 
 export default function MainContent() {
-  const moviesContext = useContext(MoviesContext);
-  if (!moviesContext) return;
-  const { selectedId, isLoading, error, movies } = moviesContext;
+  const { selectedId, isLoading, error, movies } = useMoviesContext();
 
   return (
     <main className="main">

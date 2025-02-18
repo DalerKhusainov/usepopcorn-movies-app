@@ -1,11 +1,9 @@
-import { useContext, useRef, useEffect } from "react";
-import { MoviesContext } from "../context/moviesContext";
+import { useRef } from "react";
 import { useKey } from "../hooks/useKey";
+import { useMoviesContext } from "../hooks/useMovieContext";
 
 export default function Search() {
-  const moviesContext = useContext(MoviesContext);
-  if (!moviesContext) return;
-  const { query, setQuery } = moviesContext;
+  const { query, setQuery } = useMoviesContext();
 
   // 🚨 NOT GOOD PRACTICE
   // useEffect(() => {

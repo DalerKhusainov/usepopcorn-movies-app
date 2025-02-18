@@ -1,24 +1,20 @@
-import { useContext, useState, useEffect, useRef } from "react";
-import { MoviesContext } from "../context/moviesContext";
+import { useState, useEffect, useRef } from "react";
 import StarRating from "./StarRating";
 import { MovieType } from "../types/moviesTypes";
 import Loader from "./Loader";
 import { useKey } from "../hooks/useKey";
+import { useMoviesContext } from "../hooks/useMovieContext";
 
 export default function MovieDetails({ selectedId }: { selectedId: string }) {
   const [selectedMovie, setSelectedMovie] = useState<MovieType | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [userRating, setUserRating] = useState<number>(0);
-
+  const { handleCloseMovie, handleAddWatched, watched } = useMoviesContext();
   const countRef = useRef(0);
 
   useEffect(() => {
     if (userRating) countRef.current = countRef.current + 1;
   }, [userRating]);
-
-  const moviesContext = useContext(MoviesContext);
-  if (!moviesContext) return;
-  const { handleCloseMovie, handleAddWatched, watched } = moviesContext;
 
   useEffect(() => {
     async function fetchMovie() {

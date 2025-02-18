@@ -1,11 +1,8 @@
-import { useContext } from "react";
-import { MoviesContext } from "../context/moviesContext";
+import { useMoviesContext } from "../hooks/useMovieContext";
 
 export default function WatchedSummery() {
-  const moviesContext = useContext(MoviesContext);
-  if (!moviesContext) return;
   const { watchedLength, avgImdbRating, avgUserRating, avgRuntime } =
-    moviesContext;
+    useMoviesContext();
 
   return (
     <div className="summary">
